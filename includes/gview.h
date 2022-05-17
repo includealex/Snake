@@ -3,7 +3,7 @@
 
 #include "view.h"
 
-class GView : public View {
+class GView final : public View {
  public:
   ~GView() override {}
   virtual void draw();

@@ -1,7 +1,5 @@
 #include "gview.h"
 
-#include "view.h"
-
 void GView::print_hello() {
   std::cout << "From gview "
             << "HELLO" << std::endl;

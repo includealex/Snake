@@ -12,7 +12,6 @@ class View {
   virtual ~View() {}
 
   virtual void main_loop() = 0;
-  std::pair<size_t, size_t> genrand_coord(size_t max_x, size_t max_y);
 
  private:
   virtual void draw() = 0;

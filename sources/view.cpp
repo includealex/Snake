@@ -31,15 +31,3 @@ View* View::get(const std::string& rhs) {
 }
 
 View::View() {}
-
-std::pair<size_t, size_t> View::genrand_coord(size_t max_x, size_t max_y) {
-  auto randgen = [](size_t max) {
-    std::random_device r;
-    std::default_random_engine el(r());
-    std::uniform_int_distribution<size_t> uniform_dist(2, max);
-
-    return uniform_dist(el);
-  };
-
-  return {randgen(max_x), randgen(max_y)};
-}
