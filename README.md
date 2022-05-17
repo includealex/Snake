@@ -4,11 +4,16 @@
 
 ```
 cmake -S ./ -B build/ && cd build
-```
-
-### Running a programm
-
-```
 make -j8
+```
+
+### Running a text program
+
+```
 make run_text_snake
+```
+
+### Running a graphic one
+```
+make run_goi_snake
 ```
