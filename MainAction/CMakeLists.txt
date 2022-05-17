@@ -1,8 +1,8 @@
-cmake_minimum_required(VERSION 3.16.3)
+cmake_minimum_required(VERSION 3.23.0)
 project(GameTest)
 
 file(GLOB_RECURSE GAME_TEST_SOURCES main.cpp)
-set(EXEC_NAME game_start)
+set(EXEC_NAME snake)
 
 add_executable(${EXEC_NAME} ${GAME_TEST_SOURCES})
 
@@ -15,5 +15,10 @@ endif()
 
 add_custom_target(run_text_${EXEC_NAME}
 	  COMMAND ${CMAKE_CURRENT_BINARY_DIR}/${EXEC_NAME} text)
+
+add_dependencies(run_text_${EXEC_NAME} ${EXEC_NAME})
+
+add_custom_target(run_goi_${EXEC_NAME}
+	  COMMAND ${CMAKE_CURRENT_BINARY_DIR}/${EXEC_NAME} goi)
 
 add_dependencies(run_text_${EXEC_NAME} ${EXEC_NAME})
