@@ -1,15 +1,5 @@
 #include "tview.h"
 
-#include <sys/ioctl.h>
-#include <termios.h>
-#include <unistd.h>
-
-#include <ctime>
-#include <iostream>
-
-#include "game.h"
-#include "model.h"
-
 #define FOREGROUND_COL_BLACK 30
 #define FOREGROUND_COL_RED 31
 #define FOREGROUND_COL_GREEN 32
@@ -27,7 +17,6 @@
 #define BACKGROUND_COL_MAGENTA 45
 #define BACKGROUND_COL_CYAN 46
 #define BACKGROUND_COL_WHITE 47
-
 
 bool final = false;
 
@@ -50,7 +39,7 @@ void TView::draw() {
   clear_screen();
   struct winsize w;
   ioctl(1, TIOCGWINSZ, &w);
-  box(w.ws_col, w.ws_row);
+  printBox(w.ws_col, w.ws_row);
 
   setdefaultcolor();
 }
@@ -64,7 +53,7 @@ void TView::main_loop() {
   Snake snake2({w.ws_col / 2, w.ws_row / 2 + 1});
 
   Game process;
-  addRabbits(process, nRabbits_);
+  process.addRabbits(nRabbits_, w.ws_row, w.ws_col);
 
   while (!final) {
     printf("\e[?25l");
@@ -83,43 +72,40 @@ void TView::main_loop() {
         clear_screen();
         printf("\e[?25h");
         break;
-      }
-      else {
-        switch (c)
-        {
-        case 's':
-          snake.setDirection(DOWN);
-          break;
-        case 'w':
-          snake.setDirection(UP);
-          break;
-        case 'a':
-          snake.setDirection(LEFT);
-          break;
-        case 'd':
-          snake.setDirection(RIGHT);
-          break;
-        case 'k':
-          snake2.setDirection(DOWN);
-          break;
-        case 'i':
-          snake2.setDirection(UP);
-          break;
-        case 'j':
-          snake2.setDirection(LEFT);
-          break;
-        case 'l':
-          snake2.setDirection(RIGHT);
-          break;
+      } else {
+        switch (c) {
+          case 's':
+            snake.setDirection(DOWN);
+            break;
+          case 'w':
+            snake.setDirection(UP);
+            break;
+          case 'a':
+            snake.setDirection(LEFT);
+            break;
+          case 'd':
+            snake.setDirection(RIGHT);
+            break;
+          case 'k':
+            snake2.setDirection(DOWN);
+            break;
+          case 'i':
+            snake2.setDirection(UP);
+            break;
+          case 'j':
+            snake2.setDirection(LEFT);
+            break;
+          case 'l':
+            snake2.setDirection(RIGHT);
+            break;
 
-        default:
-          break;
+          default:
+            break;
         }
       }
     }
-    snakestep(snake, process);
-    snakestep(snake2, process);
-
+    snake.snakestep(process, snake2, w.ws_row, w.ws_col);
+    snake2.snakestep(process, snake, w.ws_row, w.ws_col);
   }
 }
 
@@ -143,7 +129,7 @@ void TView::gocoord(int x, int y) {
   printf("\e[%d;%dH", y, x);
 }
 
-void TView::box(int x_length, int y_width) {
+void TView::printBox(int x_length, int y_width) {
   setcolor(FOREGROUND_COL_BLACK, BACKGROUND_COL_CYAN);
 
   gocoord(1, 1);
@@ -206,34 +192,7 @@ void TView::printSnake(Snake& snake) {
         break;
     }
   }
-
   setdefaultcolor();
-}
-
-void TView::addRabbits(Game& game, size_t num) {
-  struct winsize w;
-  ioctl(1, TIOCGWINSZ, &w);
-
-  std::vector<std::pair<size_t, size_t>> fluffies;
-
-  auto find_el = [](std::vector<std::pair<size_t, size_t>> vec, std::pair<size_t, size_t> elem) {
-    for (auto el : vec) {
-      if (el == elem)
-        return true;
-    }
-
-    return false;
-  };
-
-  for (size_t i = 0; i < num; ++i) {
-    std::pair<size_t, size_t> val = {0, 0};
-
-    do {
-      val = genrand_coord(w.ws_col - 1, w.ws_row - 1);
-    } while (find_el(fluffies, val));
-
-    game.add_rabbit(val);
-  }
 }
 
 void TView::printRabbits(Game& game) {
@@ -246,57 +205,4 @@ void TView::printRabbits(Game& game) {
   }
 
   setdefaultcolor();
-}
-
-bool TView::checkRabbit(Snake& snake, Game& game) {
-  auto coord = snake.getcoordnexttohead();
-
-  for(auto el : game.getcoords()) {
-    if(coord == el)
-      return true;
-  }
-
-  return false;
-}
-
-bool TView::checkbox(std::pair<size_t, size_t> coord) {
-  struct winsize w;
-  ioctl(1, TIOCGWINSZ, &w);
-
-  if(coord.second == 1 || coord.second == w.ws_row)
-    return true;
-  if(coord.first == 1 || coord.first == w.ws_col)
-    return true;
-
-  return false; 
-}
-
-bool TView::checkitself(Snake& snake) {
-  auto val = snake.getcoordnexttohead();  
-  auto arr = snake.getcoord();
-
-  for(auto el : arr) {
-    if(el == val)
-      return true;
-  }
-
-  return false;
-}
-
-void TView::snakestep(Snake& snake, Game& game) {
-  if(!snake.isalive())
-    return;
-  if(checkbox(snake.getcoordnexttohead()) || checkitself(snake)) {
-    snake.killed();
-    return;
-  }
-
-  if(checkRabbit(snake, game)) {
-    auto val = snake.getcoordnexttohead();
-    snake.addbody(val);
-    game.kill_rabbit(val);
-    addRabbits(game, 1);
-  }
-
-  snake.gonext();
 }

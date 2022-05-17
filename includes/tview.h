@@ -2,15 +2,18 @@
 #define TVIEW_H
 
 #include <signal.h>
+#include <sys/ioctl.h>
 #include <sys/poll.h>
 #include <termios.h>
 #include <unistd.h>
+
+#include <iostream>
 
 #include "game.h"
 #include "model.h"
 #include "view.h"
 
-class TView : public View {
+class TView final : public View {
  public:
   TView();
   ~TView() override;
@@ -18,18 +21,13 @@ class TView : public View {
 
   struct termios old_;
 
-  void snakestep(Snake& snake, Game& game);
  private:
   void draw();
 
+  void gocoord(int x, int y);
   size_t nRabbits_ = 10;
 
-  void gocoord(int x, int y);
-  void box(int x_length, int y_width);
-  void addRabbits(Game& game, size_t num);
-  bool checkitself(Snake& snake);
-  bool checkbox(std::pair<size_t, size_t> coord);
-  bool checkRabbit(Snake& snake, Game& game);
+  void printBox(int x_length, int y_width);
   void printSnake(Snake& snake);
   void printRabbits(Game& game);
 

@@ -1,7 +1,5 @@
 #include "model.h"
 
-#include <random>
-
 Snake::Snake(std::pair<size_t, size_t> startcoord) {
   snake_body_.push_back(startcoord);
   snake_body_.push_back({startcoord.first - 1, startcoord.second});
@@ -64,22 +62,21 @@ std::pair<size_t, size_t> Snake::getheadcoord() {
 
 std::pair<size_t, size_t> Snake::getcoordnexttohead() {
   auto val = getheadcoord();
-  switch (dir_)
-  {
-  case RIGHT:
-    val.first += 1;
-    break;
-  case LEFT:
-    val.first -= 1;
-    break;  
-  case UP:
-    val.second -= 1;
-    break;
-  case DOWN:
-    val.second += 1;
-    break;        
-  default:
-    break;
+  switch (dir_) {
+    case RIGHT:
+      val.first += 1;
+      break;
+    case LEFT:
+      val.first -= 1;
+      break;
+    case UP:
+      val.second -= 1;
+      break;
+    case DOWN:
+      val.second += 1;
+      break;
+    default:
+      break;
   }
 
   return val;
@@ -89,11 +86,77 @@ void Snake::addbody(std::pair<size_t, size_t> coord) {
   snake_body_.push_back(coord);
 }
 
-void Snake::killed() {
-  snake_body_.empty();
+void Snake::die(Game& game) {
+  game.add_rabbits(getcoord());
+
+  snake_body_.clear();
   alive_ = false;
 }
 
 bool Snake::isalive() {
   return alive_;
+}
+
+bool Snake::checkitself() {
+  auto val = getcoordnexttohead();
+  auto arr = getcoord();
+
+  for (auto el : arr) {
+    if (el == val)
+      return true;
+  }
+
+  return false;
+}
+
+bool Snake::checkRabbit(Game& game) {
+  auto coord = getcoordnexttohead();
+
+  for (auto el : game.getcoords()) {
+    if (coord == el)
+      return true;
+  }
+
+  return false;
+}
+
+bool Snake::checkbox(size_t max_x, size_t max_y) {
+  auto coord = getcoordnexttohead();
+
+  if (coord.second == 1 || coord.second == max_x)
+    return true;
+  if (coord.first == 1 || coord.first == max_y)
+    return true;
+
+  return false;
+}
+
+bool Snake::checkSnake2(Snake& snake2) {
+  auto val = getcoordnexttohead();
+  auto arr2 = snake2.getcoord();
+
+  for (auto el : arr2) {
+    if (val == el)
+      return true;
+  }
+
+  return false;
+}
+
+void Snake::snakestep(Game& game, Snake& snake2, size_t max_x, size_t max_y) {
+  if (!isalive())
+    return;
+  if (checkbox(max_x, max_y) || checkitself() || checkSnake2(snake2)) {
+    die(game);
+    return;
+  }
+
+  if (checkRabbit(game)) {
+    auto val = getcoordnexttohead();
+    addbody(val);
+    game.kill_rabbit(val);
+    game.addRabbits(1, max_x, max_y);
+  }
+
+  gonext();
 }
