@@ -1,9 +1,6 @@
 #include <cstring>
 #include <iostream>
 
-#include "gview.h"
-#include "model.h"
-#include "tview.h"
 #include "view.h"
 
 int main(int argc, char* argv[]) {
