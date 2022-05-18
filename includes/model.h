@@ -28,9 +28,11 @@ class Snake {
   Direction dir_ = RIGHT;
   std::list<std::pair<size_t, size_t>> snake_body_;
   bool alive_ = true;
+  size_t speed_ = 0;
 
   void gonext();
   void die(Game& Game);
+  bool checkSwamp(Game& game);
   bool checkSnake2(Snake& snake2);
   bool checkbox(size_t max_x, size_t max_y);
   bool checkRabbit(Game& game);

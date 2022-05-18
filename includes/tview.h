@@ -7,6 +7,7 @@
 #include <termios.h>
 #include <unistd.h>
 
+#include <chrono>
 #include <iostream>
 
 #include "game.h"
@@ -27,6 +28,7 @@ class TView final : public View {
   void gocoord(int x, int y);
   size_t nRabbits_ = 10;
 
+  void printSwamp(Game& game);
   void printBox(int x_length, int y_width);
   void printSnake(Snake& snake);
   void printRabbits(Game& game);

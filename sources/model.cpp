@@ -146,10 +146,19 @@ bool Snake::checkSnake2(Snake& snake2) {
 void Snake::snakestep(Game& game, Snake& snake2, size_t max_x, size_t max_y) {
   if (!isalive())
     return;
+
+  auto arr = game.almostdead();
+  for (auto krol : arr) {
+    game.kill_rabbit(krol);
+  }
+  game.clearalmostdead();
+
   if (checkbox(max_x, max_y) || checkitself() || checkSnake2(snake2)) {
     die(game);
     return;
   }
+
+  checkSwamp(game);
 
   if (checkRabbit(game)) {
     auto val = getcoordnexttohead();
@@ -157,6 +166,29 @@ void Snake::snakestep(Game& game, Snake& snake2, size_t max_x, size_t max_y) {
     game.kill_rabbit(val);
     game.addRabbits(1, max_x, max_y);
   }
+  if (!speed_)
+    gonext();
+}
 
-  gonext();
+bool Snake::checkSwamp(Game& game) {
+  auto coord = getcoordnexttohead();
+  auto arr = game.shrekcoords();
+  auto rabbitarr = game.getcoords();
+
+  for (auto elem : rabbitarr) {
+    for (auto shr : arr) {
+      if (elem == shr)
+        game.almostdie(elem);
+    }
+  }
+
+  for (auto el : arr) {
+    if (el == coord) {
+      speed_ += 1;
+      speed_ %= 2;
+      return true;
+    }
+  }
+
+  return false;
 }

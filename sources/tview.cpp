@@ -45,7 +45,8 @@ void TView::draw() {
 }
 
 void TView::main_loop() {
-  int msectosleep = 500;
+  int msectosleep = 200;
+  using namespace std::chrono_literals;
 
   struct winsize w;
   ioctl(1, TIOCGWINSZ, &w);
@@ -54,11 +55,16 @@ void TView::main_loop() {
 
   Game process;
   process.addRabbits(nRabbits_, w.ws_row, w.ws_col);
+  process.addSwamp(w.ws_row, w.ws_col);
+
+  using namespace std::chrono_literals;
+  auto timer = std::chrono::steady_clock::now();
 
   while (!final) {
     printf("\e[?25l");
     struct pollfd a = {0, POLLIN};
     draw();
+    printSwamp(process);
     printSnake(snake);
     printSnake(snake2);
     printRabbits(process);
@@ -104,8 +110,12 @@ void TView::main_loop() {
         }
       }
     }
-    snake.snakestep(process, snake2, w.ws_row, w.ws_col);
-    snake2.snakestep(process, snake, w.ws_row, w.ws_col);
+    if (std::chrono::steady_clock::now() >= timer + 200ms) {
+      process.GrowSwamp(w.ws_row, w.ws_col);
+      snake.snakestep(process, snake2, w.ws_row, w.ws_col);
+      snake2.snakestep(process, snake, w.ws_row, w.ws_col);
+      timer = std::chrono::steady_clock::now();
+    }
   }
 }
 
@@ -200,8 +210,20 @@ void TView::printRabbits(Game& game) {
 
   for (auto el : arr) {
     gocoord(el.first, el.second);
-    setcolor(FOREGROUND_COL_WHITE, BACKGROUND_COL_GREEN);
+    setcolor(FOREGROUND_COL_GREEN);
     printf("@");
+  }
+
+  setdefaultcolor();
+}
+
+void TView::printSwamp(Game& game) {
+  auto arr = game.shrekcoords();
+
+  setcolor(FOREGROUND_COL_RED, BACKGROUND_COL_YELLOW);
+  for (auto el : arr) {
+    gocoord(el.first, el.second);
+    printf(" ");
   }
 
   setdefaultcolor();
