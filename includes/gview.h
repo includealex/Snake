@@ -4,14 +4,12 @@
 #include <SFML/Audio.hpp>
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
-
 #include <chrono>
 #include <iostream>
 
-
-#include "view.h"
-#include "model.h"
 #include "game.h"
+#include "model.h"
+#include "view.h"
 
 class GView final : public View {
  public:
