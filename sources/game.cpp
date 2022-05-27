@@ -104,6 +104,11 @@ void Game::GrowSwamp(size_t max_y, size_t max_x) {
 
   auto direction = randgen(4);
   switch (direction) {
+    case 0:
+      swamp_.erase(swamp_.begin() + ind);
+      if (!swamp_.size())
+        addSwamp(max_y, max_x);
+      break;
     case 1:
       if (coord.first + 1 != max_x && coord.first + 1 != 1)
         swamp_.push_back({coord.first + 1, coord.second});
